@@ -108,8 +108,46 @@ def random_fallback():
 def random_empty():
     return random.choice(empty)
 
+#===================Функції для роботи з нотатками========================
 
+def add_note():
+    note = input("Введіть текст нотатки: ")
+    if not note.strip():
+        return "Нотатка не може бути порожньою."
+    try:
+        with open("notes.txt", "a", encoding="utf-8") as f:
+            f.write(note + "\n")
+        return "Нотатку успішно додано."
+    except Exception as e:
+        return f"Помилка при додаванні нотатки: {e}"
+    
+
+def read_note():
+    if not os.path.exists("notes.txt"):
+        return "Немає жодної нотатки."
+    try:
+        with open("notes.txt", "r", encoding="utf-8") as f:
+            notes = f.readlines()
+        if not notes:
+            return "Немає жодної нотатки."
+        formatted_notes = [f"{i+1}. {note.strip()}\n" for i, note in enumerate(notes)]
+        return "Ось ваші нотатки:\n" + "".join(formatted_notes)
+    except Exception as e:
+        return f"Помилка при читанні нотаток: {e}"
+    
+
+def delete_note():
+    if not os.path.exists("notes.txt"):
+        return "Немає жодної нотатки для видалення."
+    try:
+        with open("notes.txt", 'w', encoding="utf-8") as f:
+            f.write("")
+        return "Всі нотатки успішно видалено."
+    except Exception as e:
+        return f"Помилка при видаленні нотаток: {e}"
+    
 #===================Функції для аналізу тексту========================
+
 def analyze_text(text):
     t = text.lower()  
     if not t.strip():
@@ -122,6 +160,12 @@ def analyze_text(text):
         return "motivate"
     if any(k in t for k in ("вийти", "вихід", "закрити", "завершити")):
         return "exit"
+    if any(k in t for k in ("запиши нотатку", "створи нотатку", "записати нотатку", "збережи нотатку")):
+        return "add note"
+    if any(k in t for k in ("прочитай нотатку", "показажи нотатки", "показати нотатки", "переглянути нотатки")):
+        return "read note"
+    if any(k in t for k in ("видали нотатку", "видалити нотатку", "знищити нотатку", "стерти нотатку")):
+        return "delete note"
     return "unknown"
 
 #===================Функція для отримання відповіді========================
@@ -138,11 +182,18 @@ def get_response(text):
         return random_joke()
     if tag =="unknown":
         return random_fallback()
+    if tag == "add note":
+        return add_note()
+    if tag == "read note":
+        return read_note()
+    if tag == "delete note":
+        return delete_note()
     if tag == "exit":
         return "exit"
 
 
 #===================Основна функція програми========================
+
 def main():
     print(PERSONALITY)
 
