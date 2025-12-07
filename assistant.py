@@ -1,5 +1,6 @@
 import random
 import os
+import json
 
 #===================Hалаштування========================
 
@@ -19,7 +20,39 @@ def load_personality():
 
 PERSONALITY = load_personality()
 
+
+#===================Функції для роботи з користувачем========================
+
+def load_user():
+    if os.path.exists("user.json"):
+        try:
+            with open("user.json", "r", encoding="utf-8") as f:
+                text = f.read().strip()
+                if not text:
+                    return None
+                data = json.loads(text)
+                return data.get("name")
+        except Exception:
+            return None
+    return None
+
+def get_user():
+    user = load_user()
+    if user:
+        return user
+    else:
+        name = input("Введіть ваше ім'я: ")
+        while True:
+            if not name.strip():
+                print("Ім'я не може бути порожнім. Спробуйте ще раз.")
+                name = input("Введіть ваше ім'я: ")
+            else:
+                with open("user.json", "w", encoding="utf-8") as f:
+                    json.dump({"name": name}, f)
+                return name
+
 #===================Списки відповідей========================
+
 greatings = [
     "Привіт! Як справи?",
     "Доброго дня! Чим можу допомогти?",
@@ -112,7 +145,9 @@ def get_response(text):
 #===================Основна функція програми========================
 def main():
     print(PERSONALITY)
-    print(f"{NAME}: {random_greating()}! Готовий працювати. Якщо захочеш вийти напиши 'exit'")
+
+    user_name = get_user()
+    print(f"{NAME}: {user_name}, {random_greating()}! Готовий працювати. Якщо захочеш вийти напиши 'exit'")
     while True: 
         user = input("Ти: ")
         response = get_response(user)
